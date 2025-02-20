@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Transaction</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 600px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #txData {
+            word-break: break-all;
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success { background-color: #dff0d8; }
+        .error { background-color: #f2dede; }
+    </style>
+</head>
+<body>
+    <h2>Sign Deployment Transaction</h2>
+    <div id="status"></div>
+    <div id="txData"></div>
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <button onclick="signTransaction()" id="signBtn" style="display:none;">Sign Transaction</button>
+
+    <script>
+        let currentAccount = null;
+        let transactionData = null;
+
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    currentAccount = accounts[0];
+                    document.getElementById('status').innerHTML = `Connected: ${currentAccount}`;
+                    document.getElementById('status').className = 'status success';
+                    document.getElementById('signBtn').style.display = 'block';
+                    await checkAndSwitchNetwork();
+                    await fetchTransaction();
+                } catch (error) {
+                    showError('Error connecting wallet: ' + error.message);
+                }
+            } else {
+                showError('Please install MetaMask!');
+            }
+        }
+
+        async function checkAndSwitchNetwork() {
+            const sepoliaChainId = '0xaa36a7'; // 11155111 in hex
+            try {
+                const chainId = await ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== sepoliaChainId) {
+                    await ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: sepoliaChainId }],
+                    });
+                }
+            } catch (error) {
+                showError('Please switch to Sepolia network in your wallet');
+            }
+        }
+
+        async function fetchTransaction() {
+            try {
+                const response = await fetch('/transaction');
+                transactionData = await response.json();
+                document.getElementById('txData').textContent = JSON.stringify(transactionData, null, 2);
+            } catch (error) {
+                showError('Error fetching transaction: ' + error.message);
+            }
+        }
+
+        async function signTransaction() {
+            if (!currentAccount || !transactionData) {
+                showError('Please connect your wallet first');
+                return;
+            }
+
+            try {
+                // Add from address to transaction
+                transactionData.from = currentAccount;
+
+                // Send transaction through MetaMask
+                const txHash = await ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [transactionData]
+                });
+
+                // Send the transaction hash back to the server
+                await fetch('/signed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ txHash })
+                });
+
+                document.getElementById('status').innerHTML = `Transaction sent! Hash: ${txHash}`;
+                document.getElementById('status').className = 'status success';
+            } catch (error) {
+                showError('Error sending transaction: ' + error.message);
+            }
+        }
+
+        function showError(message) {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = 'status error';
+        }
+    </script>
+</body>
+</html> 

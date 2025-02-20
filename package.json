@@ -5,18 +5,24 @@
   "scripts": {
     "compile": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.js",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "generate-cert": "node scripts/generate-cert.js"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.7.2",
     "@ethersproject/wallet": "^5.7.0",
     "@walletconnect/ethereum-provider": "^2.11.0",
-    "@walletconnect/modal": "^2.6.2"
+    "@walletconnect/modal": "^2.6.2",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "ip": "^2.0.1"
   },
   "main": "hardhat.config.js",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "^5.2.0",
     "hardhat": "^2.22.18",
+    "localtunnel": "^2.0.2",
     "mocha": "^10.8.2",
     "qrcode": "^1.5.4",
     "ws": "^8.18.0",
