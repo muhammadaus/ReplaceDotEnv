@@ -41,14 +41,13 @@ async function main() {
     setTransaction(transaction);
 
     console.log("Starting local server...");
-    // Start server and get public URL
-    const publicUrl = await startServer();
-    // Point directly to index.html instead of root URL
-    const serverUrl = `${publicUrl}/index.html`;
+    // Start server and get local URL
+    const serverUrl = await startServer();
 
     // Generate QR code for the server URL
+    const qrPath = path.join(publicDir, 'server-qr.png');
     await QRCode.toFile(
-        path.join(publicDir, 'server-qr.png'),
+        qrPath,
         serverUrl,
         {
             errorCorrectionLevel: 'L',
@@ -58,9 +57,12 @@ async function main() {
     );
 
     console.log("\n=================================");
-    console.log("Open this URL on your iPhone:");
+    console.log("Scan this QR code with your iPhone:");
+    console.log(`${serverUrl}/server-qr.png`);
+    console.log("\nOr open this URL directly:");
     console.log(serverUrl);
     console.log("=================================\n");
+    console.log("Make sure your iPhone is on the same WiFi network");
     console.log("Waiting for transaction to be signed...");
 
     // Wait for signed transaction

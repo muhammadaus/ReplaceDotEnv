@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const localtunnel = require('localtunnel');
+const ip = require('ip'); // We'll use this to get local IP
 
 const app = express();
 app.use(cors());
@@ -53,6 +53,16 @@ app.post('/signed', (req, res) => {
     res.json({ success: true });
 });
 
+// Serve QR code at root for easy access
+app.get('/qr', (req, res) => {
+    const qrPath = path.join(__dirname, '../public/server-qr.png');
+    if (fs.existsSync(qrPath)) {
+        res.sendFile(qrPath);
+    } else {
+        res.status(404).send('QR code not found');
+    }
+});
+
 // Catch-all route for serving index.html
 app.get('*', (req, res) => {
     console.log('Fallback: serving index.html');
@@ -60,53 +70,18 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-const PORT = 3000;
+const PORT = 8000;
 
-// Start server and create tunnel with retry logic
-async function startServer(retries = 3) {
-    return new Promise(async (resolve, reject) => {
+// Start server and return local URL
+async function startServer() {
+    return new Promise((resolve, reject) => {
         try {
-            // Start local server
             const server = app.listen(PORT, '0.0.0.0', () => {
-                console.log(`Local server running at http://localhost:${PORT}`);
+                const localIP = ip.address();
+                const url = `http://${localIP}:${PORT}`;
+                console.log(`Server running at ${url}`);
+                resolve(url);
             });
-
-            // Try to create tunnel with retries
-            let tunnel;
-            let attempt = 0;
-            
-            while (attempt < retries) {
-                try {
-                    console.log(`Attempting to create tunnel (attempt ${attempt + 1}/${retries})`);
-                    tunnel = await localtunnel({ 
-                        port: PORT,
-                        subdomain: `deploy-${Math.random().toString(36).substring(2, 8)}`
-                    });
-                    
-                    tunnel.on('close', () => {
-                        console.log('Tunnel closed');
-                    });
-
-                    tunnel.on('error', (err) => {
-                        console.log('Tunnel error:', err);
-                    });
-
-                    console.log('Tunnel created successfully at:', tunnel.url);
-                    
-                    // Verify the tunnel works
-                    console.log('Verifying tunnel connection...');
-                    const testUrl = `${tunnel.url}/`;
-                    console.log('Test URL:', testUrl);
-
-                    return resolve(tunnel.url);
-                } catch (err) {
-                    attempt++;
-                    console.log(`Tunnel attempt ${attempt} failed:`, err.message);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
-            
-            reject(new Error('Failed to create tunnel after multiple attempts'));
         } catch (error) {
             reject(error);
         }
