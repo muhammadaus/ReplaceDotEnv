@@ -1,0 +1,5 @@
+0000000000000000000000000000000000000000 2bdc540c2c85772f4001eee25a1ca65481cb999e muhammadaus <aushijree@gmail.com> 1739970619 +0900	clone: from https://github.com/muhammadaus/ReplaceDotEnv
+2bdc540c2c85772f4001eee25a1ca65481cb999e cec78310afad944c80aa8987207803ed02c03b86 muhammadaus <aushijree@gmail.com> 1739975544 +0900	commit: add prototype
+cec78310afad944c80aa8987207803ed02c03b86 c3a3e5e3a7cad33d53a88d2d7acbf801fd3c2869 muhammadaus <aushijree@gmail.com> 1740056589 +0900	commit: secure TLS encryption to replace dotenv for signing transactions
+c3a3e5e3a7cad33d53a88d2d7acbf801fd3c2869 f04b429d41bbb51d19bcc18e5673b4ecdc604eb5 muhammadaus <aushijree@gmail.com> 1740110480 +0900	commit: remove localtunnel
+f04b429d41bbb51d19bcc18e5673b4ecdc604eb5 35ccc45024e9b1146dad8ffda4040ef27580a929 muhammadaus <aushijree@gmail.com> 1741016600 +0900	commit: adding https
