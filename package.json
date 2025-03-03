@@ -15,7 +15,8 @@
     "@walletconnect/modal": "^2.6.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "ip": "^2.0.1"
+    "ip": "^2.0.1",
+    "vhost": "^3.0.2"
   },
   "main": "hardhat.config.js",
   "devDependencies": {
